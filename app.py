@@ -2,13 +2,13 @@ from flask import Flask
 from flaskext.mysql import MySQL
 from flask import Flask,request,render_template,json
 import os
- 
+
 mysql = MySQL()
 app = Flask(__name__)
-app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'password'
-app.config['MYSQL_DATABASE_DB'] = 'EmpData'
-app.config['MYSQL_DATABASE_HOST'] = 'localhost'
+app.config['MYSQL_DATABASE_USER'] = 'ba73b36c4356b4'
+app.config['MYSQL_DATABASE_PASSWORD'] = '95ac4042'
+app.config['MYSQL_DATABASE_DB'] = 'heroku_890aaae2be83a14'
+app.config['MYSQL_DATABASE_HOST'] = 'us-cdbr-east-02.cleardb.com'
 mysql.init_app(app)
 qpair={}
 def renderblog():
