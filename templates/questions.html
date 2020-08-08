@@ -25,7 +25,7 @@
                         {%endif%}
                         {% if(d["question_type"]=="text")%}
                         <div class="form-group">
-                        <label for="exampleFormControlSelect1">{{d["headline"]}}</label>
+                        <label for="{{ d['identifier']}}">{{d["headline"]}}</label>
                         <div class="col">
                         <textarea class="form-control" id="{{ d['identifier']}}" name = "{{ d['identifier']}}" rows="3" required></textarea>
                         </div>
