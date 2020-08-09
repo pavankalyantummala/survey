@@ -1,68 +1,143 @@
 <html>
     <head>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <style>
+          #regForm {
+            background-color: #ffffff;
+            margin: 100px auto;
+            padding: 40px;
+            width: 70%;
+            min-width: 300px;
+          }
+          
+          input {
+            padding: 10px;
+            width: 100%;
+            font-size: 17px;
+            font-family: Raleway;
+            border: 1px solid #aaaaaa;
+          }
+          .tab {
+            display: none;
+          }
+          .lab{
+            float: left;
+          }
+        </style>
     </head>
     <body>
         <div class="jumbotron">
             <div class="container">
-            <form class="form" action="{{url_for('question')}}" method="POST">
+            <form id="ref" class="form" action="{{url_for('question')}}" method="POST">
             <input type="hidden" id="name" name="name" value="{{ name }}">
-    <div class="row"><h3>SURVEY</h3></div>
-            {% for d in dat %}
-             <div class="row">
+    <div class="row" style="color: blueviolet;"><h3>ANSWER THE FOLLOWING</h3></div>
+    <div class="row">           
+      {%for d in dat %}
+            <div class="tab">
                        {% if(d["question_type"]=="multiple-choice") and d["multiple"]=="false"%}
-                            <div class="form-group">
-                            <label for="exampleFormControlSelect1">{{d["headline"]}}</label>
+                       <label style="font-size: medium;">{{d["headline"]}}</label>
+                       <br><br>
                             {% for i in d["choices"]%}
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="{{d['identifier']}}" id="{{d['identifier']}}" value="{{i['value']}}" required>
-                                <label class="form-check-label" for="{{d['identifier']}}">
+                            <div class="row">
+                              <div class="col-sm-1">
+                                <input class="form-check-input" type="radio" name="{{d['identifier']}}" id="rad" value="{{i['value']}}" oninput= "this.className=''" >
+                                </div>
+                                <div class="col">
                                   {{i["value"]}}
-                                </label>
-                              </div>           
+                                </div>
+                              </div>
                               {%endfor%}
-                             </div>
                         {%endif%}
                        {% if(d["question_type"]=="multiple-choice") and d["multiple"]=="true"%}
-                       <div class="form-group">
-                       <label for="exampleFormControlSelect1">{{d["headline"]}}</label>
+                       <label style="font-size: medium;">{{d["headline"]}}</label>
                        {% for i in d["choices"]%}
                        <div class="form-check">
-                           <input class="form-check-input" type="checkbox" name="{{d['identifier']}}" id="{{d['identifier']}}" value="{{i['value']}}">
-                           <label class="form-check-label" for="{{d['identifier']}}">
+                           <input class="form-check-input" type="checkbox" name="{{d['identifier']}}" id="check" value="{{i['value']}}" oninput=  "this.className=''" >
+                           <span id = "lab">
                              {{i["value"]}}
-                           </label>
+                           </span>
                          </div>           
                          {%endfor%}
-                        </div>
                    {%endif%}
                         {% if(d["question_type"]=="text")%}
-                        <div class="form-group">
-                        <label for="{{ d['identifier']}}">{{d["headline"]}}</label>
-                        <div class="col">
-                        <textarea class="form-control" id="{{ d['identifier']}}" name = "{{ d['identifier']}}" rows="3" required></textarea>
-                        </div>
-                         </div>
+                        <label style="font-size: medium;">{{d["headline"]}}</label>
+                        <input type="text" class="form-control" id="txt" name = "{{ d['identifier']}}" rows="3" oninput= "this.className=''">
                        {%endif%}
                 </div>
             {%endfor%}
-            <input type="submit" class="btn btn-primary">
+          </div>
+            <div style="overflow:auto;">
+              <div style="float:right;">
+                <button type="button" id="prevBtn" class="btn btn-primary"onclick="nextPrev(-1)">Previous</button>
+                <button type="button" id="nextBtn" class="btn btn-success"onclick="nextPrev(1)">Next</button>
+              </div>
+            </div>
             </form>
             </div>
         </div>
-
-    
-        
-
+        <div id="max" style="color:white">{{len}}</div>
+  
 
 
+<script>
+var max = parseInt(document.getElementById("max").innerText);
+var currentTab = 0; 
+showTab(currentTab); 
 
+function showTab(n) {
+var x = document.getElementsByClassName("tab");
+x[n].style.display = "block";
+if (n == 0) {
+document.getElementById("prevBtn").style.display = "none";
+} else {
+document.getElementById("prevBtn").style.display = "inline";
+}
+if (n == (x.length - 1)) {
+document.getElementById("nextBtn").innerHTML = "Submit";
+} else {
+document.getElementById("nextBtn").innerHTML = "Next";
+}
+}
 
+function nextPrev(n) {
+console.log(max)
+var x = document.getElementsByClassName("tab");
+console.log(x);
+if (n == 1 && !validateForm()) return false;
+x[currentTab].style.display = "none";
+currentTab = currentTab + n;
+console.log(currentTab)
+if (currentTab >= max ) {
+//console.log(currentTab)
+//console.log(max)
+document.getElementById("ref").submit();
+return false;
+}
+showTab(currentTab);
+}
 
-
-
-
-
+function validateForm() {
+var x, y, i, valid = false;
+x = document.getElementsByClassName("tab");
+y = x[currentTab].getElementsByTagName("input");
+if(y.length>1)
+{
+for(i=0;i<y.length;i++)
+{
+if(y[i].checked)
+{
+valid=true;
+break;
+}
+}
+}
+else{
+console.log(y)
+valid = y[0].value.length>0
+}
+return valid; 
+}
+        </script>
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
