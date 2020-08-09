@@ -58,7 +58,6 @@ def login():
 
 @app.route("/Authenticate",methods=['POST'])
 def Authenticate():
-   try:
     username = request.form['username']
     password = request.form['password']
     conn=mysql.connect()
@@ -78,7 +77,6 @@ def Authenticate():
 
 @app.route("/welcome")
 def welcome():
-  try:
     tmp=renderblog()
     conn= mysql.connect()
     cursor = conn.cursor()
@@ -107,7 +105,6 @@ def tosignup():
 
 @app.route("/signup",methods=['POST'])
 def signup():
-  try:
     username = request.form['username']
     password = request.form['password']
     name = request.form['name']
