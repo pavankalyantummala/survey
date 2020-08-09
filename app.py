@@ -45,13 +45,12 @@ def guest():
               for i in tmp["questions"]:
                          qpair[i["identifier"]]=i["headline"]
      st= "select * from question"
-     print(session)
      conn = mysql.connect()
      cursor = conn.cursor()
      cursor.execute(st)
      tmp=cursor.fetchall()
      conn.close()
-     return render_template("guest.html",data=tmp,header=qpair,length=len(tmp))
+     return render_template("guest.html",data=tmp,header=qpair,length=len(tmp),session = session)
 
 @app.route("/login")
 def login():
@@ -74,7 +73,7 @@ def Authenticate():
      name = cursor.fetchone()
      conn.close()
      session['username']=name[0]
-     return render_template("welcome.html",name = name[0])
+     return render_template("welcome.html",name = name[0],session=session)
    except:
        flash("Session Expired")
        return redirect(url_for('start'))
@@ -92,7 +91,7 @@ def welcome():
         if(data):
             return render_template("filled.html")
         else:
-             return render_template("questions.html",dat = tmp['questionnaire']['questions'],name = session['username'])
+             return render_template("questions.html",dat = tmp['questionnaire']['questions'],name = session['username'],session=session)
     else:   
              flash("Please login")
              return redirect(url_for('start'))
@@ -156,7 +155,7 @@ def question():
      cursor.execute(st)
      conn.commit()
      conn.close()
-     return render_template("filled.html")
+     return render_template("filled.html",session=session)
 
 
 if __name__ == "__main__":
