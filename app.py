@@ -74,9 +74,6 @@ def Authenticate():
      conn.close()
      session['username']=name[0]
      return render_template("welcome.html",name = name[0],session=session)
-   except:
-       flash("Session Expired")
-       return redirect(url_for('start'))
     
 
 @app.route("/welcome")
@@ -95,9 +92,6 @@ def welcome():
     else:   
              flash("Please login")
              return redirect(url_for('start'))
-  except:
-      flash("Session Expired")
-      return redirect(url_for('start'))
 
 @app.route("/signout")
 def signout():
@@ -128,9 +122,6 @@ def signup():
      return render_template('login.html',msg="Registration Success!! Please Login",success=True)
     else:
      return render_template('signup.html',msg="Username already exists",success=False)
-  except:
-      flash("Session Expired")
-      return redirect(url_for('start'))  
 
 @app.route("/question" , methods=['POST'])
 def question():
