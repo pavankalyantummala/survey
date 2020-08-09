@@ -45,6 +45,7 @@ def guest():
               for i in tmp["questions"]:
                          qpair[i["identifier"]]=i["headline"]
      st= "select * from question"
+     print(session)
      conn = mysql.connect()
      cursor = conn.cursor()
      cursor.execute(st)
