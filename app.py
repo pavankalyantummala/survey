@@ -125,7 +125,7 @@ def signup():
      return render_template('signup.html',msg="Username already exists",success=False)
   except:
       flash("Session Expired")
-      redirect(url_for('start'))  
+      return redirect(url_for('start'))  
 
 @app.route("/question" , methods=['POST'])
 def question():
