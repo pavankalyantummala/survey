@@ -37,7 +37,7 @@ def start():
 @app.route("/guest")
 def guest():
    try:
-     st= "select * from "+ qpair["dbname"]
+     st= "select * from "+ session["dbname"]
      conn = mysql.connect()
      cursor = conn.cursor()
      cursor.execute(st)
@@ -67,7 +67,7 @@ def Authenticate():
      cursor.execute("SELECT name from User where userName='" + username + "' and password='" + password + "'")
      name = cursor.fetchone()
      conn.close()
-     session['username']=name
+     session['username']=name[0]
      return render_template("welcome.html",name = name[0])
    except:
        flash("Session Expired")
@@ -81,7 +81,7 @@ def welcome():
     conn= mysql.connect()
     cursor = conn.cursor()
     if('username' in session):
-        cursor.execute("select * from "+session["dbname"]+" where username = '"+session["username"][0]+"'")
+        cursor.execute("select * from "+session["dbname"]+" where username = '"+session["username"]+"'")
         data = cursor.fetchone()
         if(data):
             return render_template("filled.html")
@@ -92,7 +92,7 @@ def welcome():
              return redirect(url_for('start'))
   except:
       flash("Session Expired")
-      redirect(url_for('start'))
+      return redirect(url_for('start'))
 
 @app.route("/signout")
 def signout():
@@ -133,12 +133,13 @@ def question():
      tmp=request.form.to_dict(flat=False)
      conn= mysql.connect()
      cursor = conn.cursor()
-     st="insert into "+session["dbname"][0]+" values("
+     st="insert into "+session["dbname"]+" values("
      for i in qpair:
         if(i!="dbname"):
             an=""
             for j in range(len(tmp[i])):
                 an=an+tmp[i][j]+", "
+            an=an[:-2]
             st = st+ "'" + str(an) +"',"
      st=st[:-1]
      st+=")"
