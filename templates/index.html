@@ -48,9 +48,7 @@
       {% with messages = get_flashed_messages() %}
       {% if messages %}
           {% for message in messages %}
-              <script>
-                setTimeout( function ( ) { alert( "{{ message }}"); }, 500 );
-              </script>
+          <h3 style="color: red;">{{message}} !!!!</h3>
           {% endfor %}
       {% endif %}
     {% endwith %}

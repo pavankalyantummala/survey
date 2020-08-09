@@ -20,24 +20,16 @@ def renderblog():
     return data
 @app.route("/")
 def start():
-    p=renderblog()["questionnaire"]
-    st = "create table if not exists "+p["name"]+"( username varchar(60) not null "
-    qpair["dbname"]=p["name"]
-    session["dbname"]=p["name"]
-    qpair["name"]="Name"
+    p = renderblog()["questionnaire"]
+    st = "create table if not exists "+qpair["dbname"]+"( username varchar(60) not null "
     for i in p["questions"]:
-        qpair[i["identifier"]]=i["headline"]
         st = st +","+ i['identifier'] + " varchar(60) not null "
     st = st +")"
-    conn = mysql.connect()
-    cursor = conn.cursor()
-    cursor.execute(st)
-    conn.close()
-    return render_template("index.html", name=p["name"])
+    return render_template("index.html", name=qpair["dbname"])
 @app.route("/guest")
 def guest():
    try:
-     st= "select * from "+ session["dbname"]
+     st= "select * from "+ qpair["dbname"]
      conn = mysql.connect()
      cursor = conn.cursor()
      cursor.execute(st)
@@ -81,7 +73,7 @@ def welcome():
     conn= mysql.connect()
     cursor = conn.cursor()
     if('username' in session):
-        cursor.execute("select * from "+session["dbname"]+" where username = '"+session["username"]+"'")
+        cursor.execute("select * from "+qpair["dbname"]+" where username = '"+session["username"]+"'")
         data = cursor.fetchone()
         if(data):
             return render_template("filled.html")
@@ -133,7 +125,7 @@ def question():
      tmp=request.form.to_dict(flat=False)
      conn= mysql.connect()
      cursor = conn.cursor()
-     st="insert into "+session["dbname"]+" values("
+     st="insert into "+qpair["dbname"]+" values("
      for i in qpair:
         if(i!="dbname"):
             an=""
@@ -146,10 +138,16 @@ def question():
      cursor.execute(st)
      conn.commit()
      conn.close()
-     return render_template("success.html",msg = "Success",sf=True)
+     return render_template("filed.html")
   except:
      flash("Session Expired")
      return redirect(url_for('start'))
 
 if __name__ == "__main__":
+    q=renderblog()
+    q=renderblog()["questionnaire"]
+    qpair["dbname"]=q["name"]
+    qpair["name"]="Name"
+    for i in q["questions"]:
+        qpair[i["identifier"]]=i["headline"]
     app.run()
