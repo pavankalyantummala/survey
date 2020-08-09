@@ -20,25 +20,38 @@ def renderblog():
     return data
 @app.route("/")
 def start():
-    p = renderblog()["questionnaire"]
-    st = "create table if not exists "+qpair["dbname"]+"( username varchar(60) not null "
+    p = renderblog()
+    p=p['questionnaire']
+    st = "create table if not exists question ( username varchar(60) not null "
     for i in p["questions"]:
         st = st +","+ i['identifier'] + " varchar(60) not null "
     st = st +")"
-    return render_template("index.html", name=qpair["dbname"])
+    if("name" not in qpair):
+              qpair["name"]="Name"
+              for i in p["questions"]:
+                         qpair[i["identifier"]]=i["headline"]
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    cursor.execute(st)
+    tmp=cursor.fetchall()
+    conn.close()
+    return render_template("index.html")
 @app.route("/guest")
 def guest():
-   try:
-     st= "select * from "+ qpair["dbname"]
+     data = renderblog()
+     tmp=data["questionnaire"]
+     if("name" not in qpair):
+              qpair["name"]="Name"
+              for i in tmp["questions"]:
+                         qpair[i["identifier"]]=i["headline"]
+     st= "select * from question"
      conn = mysql.connect()
      cursor = conn.cursor()
      cursor.execute(st)
      tmp=cursor.fetchall()
      conn.close()
      return render_template("guest.html",data=tmp,header=qpair,length=len(tmp))
-   except:
-       flash("Session Expired")
-       return redirect(url_for('start')) 
+
 @app.route("/login")
 def login():
     return render_template("login.html")
@@ -64,16 +77,16 @@ def Authenticate():
    except:
        flash("Session Expired")
        return redirect(url_for('start'))
-
+    
 
 @app.route("/welcome")
 def welcome():
   try:
-    tmp = renderblog()
+    tmp=renderblog()
     conn= mysql.connect()
     cursor = conn.cursor()
     if('username' in session):
-        cursor.execute("select * from "+qpair["dbname"]+" where username = '"+session["username"]+"'")
+        cursor.execute("select * from question where username = '"+session["username"]+"'")
         data = cursor.fetchone()
         if(data):
             return render_template("filled.html")
@@ -121,11 +134,15 @@ def signup():
 
 @app.route("/question" , methods=['POST'])
 def question():
-  try:
      tmp=request.form.to_dict(flat=False)
      conn= mysql.connect()
+     if("name" not in qpair):
+              tmp=renderblog()['questionnaire']
+              qpair["name"]="Name"
+              for i in tmp["questions"]:
+                         qpair[i["identifier"]]=i["headline"]
      cursor = conn.cursor()
-     st="insert into "+qpair["dbname"]+" values("
+     st="insert into question values("
      for i in qpair:
         if(i!="dbname"):
             an=""
@@ -138,16 +155,8 @@ def question():
      cursor.execute(st)
      conn.commit()
      conn.close()
-     return render_template("filed.html")
-  except:
-     flash("Session Expired")
-     return redirect(url_for('start'))
+     return render_template("filled.html")
+
 
 if __name__ == "__main__":
-    q=renderblog()
-    q=renderblog()["questionnaire"]
-    qpair["dbname"]=q["name"]
-    qpair["name"]="Name"
-    for i in q["questions"]:
-        qpair[i["identifier"]]=i["headline"]
     app.run()
