@@ -15,11 +15,11 @@
         <li><a href="{{url_for('welcome')}}">ANSWER</a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        {% if 'username' not in session %}
-        <li><a href="{{url_for('tosignup')}}"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
-        <li><a href="{{url_for('login')}}"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+        {% if not cook %}
+        <li><a href="{{url_for('tosignup')}}"><span class="glyphicon glyphicon-user"></span>Sign Up</a></li>
+        <li><a href="{{url_for('login')}}"><span class="glyphicon glyphicon-log-in"></span>&nbsp;Login</a></li>
         {%endif%}
-        {% if 'username' in session %}
+        {% if cook|length > 0 %}
         <li><a href="{{url_for('signout')}}"><span class="glyphicon glyphicon-log-out"></span>Logout</a></li>
         {%endif%}
       </ul>

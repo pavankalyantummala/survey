@@ -1,6 +1,6 @@
 from flask import Flask
 from flaskext.mysql import MySQL
-from flask import Flask,request,render_template,json,session,flash,redirect,url_for
+from flask import Flask,request,render_template,json,session,flash,redirect,url_for,make_response
 import os
 
 mysql = MySQL()
@@ -35,7 +35,7 @@ def start():
     cursor.execute(st)
     tmp=cursor.fetchall()
     conn.close()
-    return render_template("index.html")
+    return render_template("index.html",cook=request.cookies.get("username"))
 @app.route("/guest")
 def guest():
      data = renderblog()
@@ -50,7 +50,7 @@ def guest():
      cursor.execute(st)
      tmp=cursor.fetchall()
      conn.close()
-     return render_template("guest.html",data=tmp,header=qpair,length=len(tmp),session = session)
+     return render_template("guest.html",data=tmp,header=qpair,length=len(tmp),cook = request.cookies.get('username'))
 
 @app.route("/login")
 def login():
@@ -71,8 +71,9 @@ def Authenticate():
      cursor.execute("SELECT name from User where userName='" + username + "' and password='" + password + "'")
      name = cursor.fetchone()
      conn.close()
-     session['username']=name[0]
-     return render_template("welcome.html",name = name[0],session=session)
+     resp = make_response(render_template("welcome.html",name = name[0]))
+     resp.set_cookie('username',name[0])
+     return resp
     
 
 @app.route("/welcome")
@@ -80,24 +81,26 @@ def welcome():
     tmp=renderblog()
     conn= mysql.connect()
     cursor = conn.cursor()
-    if('username' in session):
-        cursor.execute("select * from question where username = '"+session["username"]+"'")
+    usr=request.cookies.get("username")
+    if(usr):
+      if(len(usr)>0):
+        cursor.execute("select * from question where username = '"+usr+"'")
         data = cursor.fetchone()
         if(data):
-            return render_template("filled.html")
+            return render_template("filled.html",cook = usr)
         else:
-             return render_template("questions.html",dat = tmp['questionnaire']['questions'],name = session['username'],session=session)
-    else:   
-             flash("Please login")
-             return redirect(url_for('start'))
+             return render_template("questions.html",dat = tmp['questionnaire']['questions'],name = usr)
+    flash("Please login")
+    return redirect(url_for('start'))
 
 @app.route("/signout")
 def signout():
-    if( 'username' in session):
-            session.pop('username',None)
+    usr=request.cookies.get("username")
+    if(usr):
             flash("Logged out!!")
-    return redirect(url_for('start'))
-
+            res = make_response(redirect(url_for('start')))
+            res.set_cookie("username","")
+            return res
 
 @app.route("/tosignup")
 def tosignup():
@@ -143,7 +146,7 @@ def question():
      cursor.execute(st)
      conn.commit()
      conn.close()
-     return render_template("filled.html")
+     return render_template("filled.html", cook=request.cookies.get("username"))
 
 
 if __name__ == "__main__":

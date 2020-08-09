@@ -17,13 +17,7 @@
                 <li class="active"><a href="{{url_for('welcome')}}">ANSWER</a></li>
               </ul>
               <ul class="nav navbar-nav navbar-right">
-                {% if 'username' not in session %}
-                <li><a href="{{url_for('tosignup')}}"><span class="glyphicon glyphicon-user"></span>Sign Up</a></li>
-                <li><a href="{{url_for('login')}}"><span class="glyphicon glyphicon-log-in"></span>Login</a></li>
-                {%endif%}
-                {% if 'username' in session %}
                 <li><a href="{{url_for('signout')}}"><span class="glyphicon glyphicon-log-out"></span>Logout</a></li>
-                {%endif%}
               </ul>
             </div>
           </nav>
@@ -34,7 +28,7 @@
 
 
 <div class="jumbotron container">
-    <h2>Welcome <span style="color: blueviolet;">{{name}}</span></h2>
+    <h2>Welcome <span style="color: rgb(136, 18, 247);">{{name}}</span></h2>
     <br>
     <div class="row justify-content-center align-items-center">
         <div class="col-sm-3">
