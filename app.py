@@ -1,6 +1,6 @@
 from flask import Flask
 from flaskext.mysql import MySQL
-from flask import Flask,request,render_template,json
+from flask import Flask,request,render_template,json,session,flash,redirect,url_for
 import os
 
 mysql = MySQL()
@@ -10,6 +10,8 @@ app.config['MYSQL_DATABASE_PASSWORD'] = '95ac4042'
 app.config['MYSQL_DATABASE_DB'] = 'heroku_890aaae2be83a14'
 app.config['MYSQL_DATABASE_HOST'] = 'us-cdbr-east-02.cleardb.com'
 mysql.init_app(app)
+app.debug = True
+app.secret_key = os.urandom(24)
 qpair={}
 def renderblog():
     filename = os.path.join(app.static_folder, 'questionnaire.json')
@@ -21,6 +23,7 @@ def start():
     p=renderblog()["questionnaire"]
     st = "create table if not exists "+p["name"]+"( username varchar(60) not null "
     qpair["dbname"]=p["name"]
+    session["dbname"]=p["name"]
     qpair["name"]="Name"
     for i in p["questions"]:
         qpair[i["identifier"]]=i["headline"]
@@ -33,19 +36,24 @@ def start():
     return render_template("index.html", name=p["name"])
 @app.route("/guest")
 def guest():
-    st= "select * from "+ qpair["dbname"]
-    conn = mysql.connect()
-    cursor = conn.cursor()
-    cursor.execute(st)
-    tmp=cursor.fetchall()
-    conn.close()
-    return render_template("guest.html",data=tmp,header=qpair,length=len(tmp))
+   try:
+     st= "select * from "+ qpair["dbname"]
+     conn = mysql.connect()
+     cursor = conn.cursor()
+     cursor.execute(st)
+     tmp=cursor.fetchall()
+     conn.close()
+     return render_template("guest.html",data=tmp,header=qpair,length=len(tmp))
+   except:
+       flash("Session Expired")
+       redirect(url_for('start')) 
 @app.route("/login")
 def login():
     return render_template("login.html")
 
 @app.route("/Authenticate",methods=['POST'])
 def Authenticate():
+   try:
     username = request.form['username']
     password = request.form['password']
     conn=mysql.connect()
@@ -56,11 +64,43 @@ def Authenticate():
      conn.close()
      return render_template('login.html',msg="Username or Password is wrong",success=False)
     else:
-     tmp = renderblog()
      cursor.execute("SELECT name from User where userName='" + username + "' and password='" + password + "'")
      name = cursor.fetchone()
      conn.close()
-     return render_template("questions.html",dat = tmp['questionnaire']['questions'],name = name[0])
+     session['username']=name
+     return render_template("welcome.html",name = name[0])
+   except:
+       flash("Session Expired")
+       redirect(url_for('start'))
+
+
+@app.route("/welcome")
+def welcome():
+  try:
+    tmp = renderblog()
+    conn= mysql.connect()
+    cursor = conn.cursor()
+    if('username' in session):
+        cursor.execute("select * from "+session["dbname"]+" where username = '"+session["username"][0]+"'")
+        data = cursor.fetchone()
+        if(data):
+            return render_template("filled.html")
+        else:
+             return render_template("questions.html",dat = tmp['questionnaire']['questions'],name = session['username'])
+    else:   
+             flash("Please login")
+             return redirect(url_for('start'))
+  except:
+      flash("Session Expired")
+      redirect(url_for('start'))
+
+@app.route("/signout")
+def signout():
+    if( 'username' in session):
+            session.pop('username')
+            flash("Logged out!!")
+    return redirect(url_for('start'))
+
 
 @app.route("/tosignup")
 def tosignup():
@@ -68,6 +108,7 @@ def tosignup():
 
 @app.route("/signup",methods=['POST'])
 def signup():
+  try:
     username = request.form['username']
     password = request.form['password']
     name = request.form['name']
@@ -82,25 +123,32 @@ def signup():
      return render_template('login.html',msg="Registration Success!! Please Login",success=True)
     else:
      return render_template('signup.html',msg="Username already exists",success=False)
+  except:
+      flash("Session Expired")
+      redirect(url_for('start'))  
 
 @app.route("/question" , methods=['POST'])
 def question():
-    tmp=request.form.to_dict(flat=False)
-    conn= mysql.connect()
-    cursor = conn.cursor()
-    cursor.execute("select * from "+qpair["dbname"]+" where username = '"+tmp["name"][0]+"'")
-    data = cursor.fetchone()
-    if(data):
-        return render_template("success.html", msg="You have already filled the form")
-    st="insert into "+qpair["dbname"]+" values("
-    for i in qpair:
+  try:
+     tmp=request.form.to_dict(flat=False)
+     conn= mysql.connect()
+     cursor = conn.cursor()
+     st="insert into "+session["dbname"][0]+" values("
+     for i in qpair:
         if(i!="dbname"):
-            st = st+ "'" + str(tmp[i][0]) +"',"
-    st=st[:-1]
-    st+=")"
-    cursor.execute(st)
-    conn.commit()
-    conn.close()
-    return render_template("success.html",msg = "Success")
+            an=""
+            for j in range(len(tmp[i])):
+                an=an+tmp[i][j]+", "
+            st = st+ "'" + str(an) +"',"
+     st=st[:-1]
+     st+=")"
+     cursor.execute(st)
+     conn.commit()
+     conn.close()
+     return render_template("success.html",msg = "Success",sf=True)
+  except:
+     flash("Session Expired")
+     return redirect(url_for('start'))
+
 if __name__ == "__main__":
     app.run()

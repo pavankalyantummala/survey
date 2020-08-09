@@ -1,6 +1,7 @@
 <html>
 <head>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src='https://kit.fontawesome.com/a076d05399.js'></script>
 </head>
 <body>
  <div>
@@ -12,20 +13,47 @@
           <ul class="nav navbar-nav">
             <li class="active"><a href="/">HOME</a></li>
             <li><a href="{{url_for('guest')}}">GUEST</a></li>
+            <li><a href="{{url_for('welcome')}}">ANSWER</a></li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
+            {% if 'username' not in session %}
             <li><a href="{{url_for('tosignup')}}"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
             <li><a href="{{url_for('login')}}"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+            {%endif%}
+            {% if 'username' in session %}
+            <li><a href="{{url_for('signout')}}"><span class="glyphicon glyphicon-log-out"></span>Logout</a></li>
+            {%endif%}
           </ul>
         </div>
       </nav>
     </div> 
     <div> 
-      <h1>QUESTIONS ON {{name}}</h1>
-      <br>
-      <h3>Login To Answer</h3>
-      <br>
-      <h3>Navigate to guests to view the answers</h3>
+      <div class="container jumbotron">
+        <div class="row align-items-center">
+      <h2>QUESTIONS ON <span style="font-family:cursive; color:blueviolet">{{name}}</span></h2>
+      </div>
+      <div class="row">
+      <div class="register_link">
+      <h3><a  href="{{url_for('welcome')}}" ><i class='fas fa-clipboard	'></i>&nbsp;&nbsp;&nbsp;ANSWER</a></h3>
+      </div>
+      </div>
+      <div class="row">
+      <div class="register_link">
+      <h3><a href="{{url_for('guest')}}"><i class='fa fa-eye'></i>&nbsp;&nbsp;&nbsp;VIEW ANSWERS</a></h3>
+      </div>
+      </div>
+    </div>
+    </div>
+    <div class="container">
+      {% with messages = get_flashed_messages() %}
+      {% if messages %}
+          {% for message in messages %}
+              <script>
+                setTimeout( function ( ) { alert( "{{ message }}"); }, 500 );
+              </script>
+          {% endfor %}
+      {% endif %}
+    {% endwith %}
     </div>
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
