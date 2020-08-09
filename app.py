@@ -46,7 +46,7 @@ def guest():
      return render_template("guest.html",data=tmp,header=qpair,length=len(tmp))
    except:
        flash("Session Expired")
-       redirect(url_for('start')) 
+       return redirect(url_for('start')) 
 @app.route("/login")
 def login():
     return render_template("login.html")
@@ -71,7 +71,7 @@ def Authenticate():
      return render_template("welcome.html",name = name[0])
    except:
        flash("Session Expired")
-       redirect(url_for('start'))
+       return redirect(url_for('start'))
 
 
 @app.route("/welcome")
