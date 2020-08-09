@@ -90,8 +90,7 @@ def welcome():
             return render_template("filled.html",cook = usr)
         else:
              return render_template("questions.html",dat = tmp['questionnaire']['questions'],name = usr)
-    flash("Please login")
-    return redirect(url_for('start'))
+    return redirect(url_for('login'))
 
 @app.route("/signout")
 def signout():
