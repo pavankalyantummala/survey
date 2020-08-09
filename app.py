@@ -102,7 +102,7 @@ def welcome():
 @app.route("/signout")
 def signout():
     if( 'username' in session):
-            session.pop('username')
+            session.pop('username',None)
             flash("Logged out!!")
     return redirect(url_for('start'))
 
@@ -155,7 +155,7 @@ def question():
      cursor.execute(st)
      conn.commit()
      conn.close()
-     return render_template("filled.html",session=session)
+     return render_template("filled.html")
 
 
 if __name__ == "__main__":
