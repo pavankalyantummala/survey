@@ -34,6 +34,3 @@ thanking the user will be displayed.</b>
 Application link:
 <br>
 https://questionaire-app-tummala.herokuapp.com/
-
-<br><br>
-Cookies was used please enable them in the browser.
